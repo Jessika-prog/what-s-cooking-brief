@@ -1,6 +1,6 @@
 from imports import *
 
-class Cook:
+class Prediction:
 
     def __init__(self, name):
 
@@ -42,7 +42,6 @@ class Cook:
                     filtered_tags[index].append(j[0])
         
         return filtered_tags
-        
  
     def train_test_split(self):
             self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
@@ -63,102 +62,33 @@ class Cook:
     def score(self, y_test, y_pred):
         self.accuracy = accuracy_score(y_test, y_pred)
         print(self.accuracy)
-        
 
-    def mega_training(self):
+    def mega_process(self, x_test):
         
         self.multilab = MultiLabelBinarizer()
         self.model = LinearSVC(C = 0.22685190926977272, penalty = 'l2')
+        
+        x_pred = pd.read_json(x_test)
+        self.X_test = x_pred.ingredients
         
         #remove special ingredients
         self.X = pd.Series(self.removing_special_ingredients(self.X))
         
         #remove adjectives, verbs, etc.
         #self.X = self.pos_tag_ingredients(self.X)
-        
-        #train test split
-        self.train_test_split()
 
         # preprocessing
-        self.preprocessing(self.X_train, self.X_test)
+        self.preprocessing(self.X, self.X_test)
 
         # model_fit
-        self.model_fit(self.X_train, self.y_train)
+        self.model_fit(self.X_train, self.y)
 
         # model_predict
         self.model_predict(self.X_test)
-        display(self.y_pred)
 
-        # model Score
-        self.score(self.y_test, self.y_pred)
         
-    
-    def stacking_training(self):
+        self.submission = pd.DataFrame({'id':x_pred['id'],'cuisine': self.y_pred})
         
-        self.stack_model = StackingClassifier([('linearSVC', LinearSVC()),
-                                               ('randomForest', RandomForestClassifier())],
-                                              
-                                              final_estimator=LinearSVC())
-
-        self.multilab = MultiLabelBinarizer()
-               
-        #remove special ingredients
-        self.X = pd.Series(self.removing_special_ingredients(self.X))
+        self.submission.to_csv('submission.csv', index=False)
         
-        #remove adjectives, verbs, etc.
-        self.X = self.pos_tag_ingredients(self.X)
-        
-        #train test split
-        self.train_test_split()
-
-        # preprocessing
-        self.preprocessing(self.X_train, self.X_test)
-
-        # model_fit
-        self.stack_model_fit = self.stack_model.fit(self.X_train, self.y_train)
-
-        # model_predict
-        self.y_pred = self.stack_model_fit.predict(self.X_test)
-        display(self.y_pred)
-
-        # model Score
-        self.score(self.y_test, self.y_pred)
-        
-    def randomize_training(self):
-        
-        self.randomize_model = LinearSVC()
-
-        self.multilab = MultiLabelBinarizer()
-               
-        #remove special ingredients
-        self.X = pd.Series(self.removing_special_ingredients(self.X))
-        
-        #remove adjectives, verbs, etc.
-        self.X = self.pos_tag_ingredients(self.X)
-        
-        #train test split
-        self.train_test_split()
-
-        # preprocessing
-        self.preprocessing(self.X_train, self.X_test)
-
-        # model_fit
-        distributions = dict(C=uniform(loc=0, scale=4), penalty=['l2', 'l1'])
-        rscv = RandomizedSearchCV(self.randomize_model, distributions, random_state=0)
-        random_search = rscv.fit(self.X_train,self.y_train)
-
-        print(f"""
-        Les meilleurs paramètres sont : {random_search.best_params_}
-        """)
-        
-        # model_predict
-        self.y_pred = random_search.best_estimator_.predict(self.X_test)
-        display(self.y_pred)
-
-        # model Score
-        self.score(self.y_test, self.y_pred)
-        
-        
-                  
-        
- 
+        return self.submission
