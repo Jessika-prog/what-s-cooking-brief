@@ -1,12 +1,10 @@
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+from imports import *
 
+class View:
 
-def information(df):
-    forme = df.shape
-    inform = df.info()
-    nombre_de_cuisines = df[['cuisine']].value_counts()
+    def information(self, df):
+        forme = df.shape
+        inform = df.info()
+        nombre_de_cuisines = df[['cuisine']].value_counts()
     
-    return (forme, nombre_de_cuisines,inform)
+        return forme, nombre_de_cuisines,inform

@@ -16,3 +16,4 @@ from sklearn.feature_extraction.text import CountVectorizer
 from viz import *
 from model import *
 from cleaning import *
+from data import *
