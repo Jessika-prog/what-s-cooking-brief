@@ -11,8 +11,11 @@ warnings.filterwarnings('ignore')
 
 from sklearn.svm import LinearSVC
 
+from sklearn.neighbors import KNeighborsClassifier
 
-from sklearn.ensemble import StackingClassifier, RandomForestClassifier
+from sklearn.linear_model import SGDClassifier, LogisticRegression
+
+from sklearn.ensemble import StackingClassifier, RandomForestClassifier, GradientBoostingClassifier
 
 from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV, cross_val_score
 
@@ -23,5 +26,4 @@ from nltk import word_tokenize, pos_tag, pos_tag_sents
 
 from sklearn import set_config
 set_config(display='diagram')
-
 
