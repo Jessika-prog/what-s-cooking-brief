@@ -171,7 +171,35 @@ class Cook:
         display(self.y_pred)
 
         # model Score
-        self.score(self.y_test, self.y_pred)    
+        self.score(self.y_test, self.y_pred)
+   
+
+    def mega_AdaBoostClassifier(self):
+        
+        self.multilab = MultiLabelBinarizer()
+        self.model = AdaBoostClassifier(n_estimators=50, learning_rate=1.0)
+
+        #remove special ingredients
+        self.X = pd.Series(self.removing_special_ingredients(self.X))
+
+        #remove adjectives, verbs, etc.
+        #self.X = self.pos_tag_ingredients(self.X)
+
+        #train test split
+        self.train_test_split()
+
+        # preprocessing
+        self.preprocessing(self.X_train, self.X_test)
+
+        # model_fit
+        self.model_fit(self.X_train, self.y_train)
+
+        # model_predict
+        self.model_predict(self.X_test)
+        display(self.y_pred)
+
+        # model Score
+        self.score(self.y_test, self.y_pred)  
         
     
     
