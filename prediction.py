@@ -66,7 +66,7 @@ class Prediction:
     def mega_process(self, x_test):
         
         self.multilab = MultiLabelBinarizer()
-        self.model = LinearSVC(C = 0.22685190926977272, penalty = 'l2')
+        self.model = LogisticRegression()
         
         x_pred = pd.read_json(x_test)
         self.X_test = x_pred.ingredients
