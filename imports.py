@@ -15,7 +15,7 @@ from sklearn.neighbors import KNeighborsClassifier
 
 from sklearn.linear_model import SGDClassifier, LogisticRegression
 
-from sklearn.ensemble import StackingClassifier, RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import StackingClassifier, RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
 
 from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV, cross_val_score
 
