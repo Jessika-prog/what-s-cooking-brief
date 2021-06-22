@@ -65,10 +65,10 @@ class Cook:
         print(self.accuracy)
         
 
-    def mega_training(self):
+    def mega_linearSVC(self):
         
         self.multilab = MultiLabelBinarizer()
-        self.model = LinearSVC(C = 0.22685190926977272, penalty = 'l2')
+        self.model = LinearSVC()
         
         #remove special ingredients
         self.X = pd.Series(self.removing_special_ingredients(self.X))
@@ -92,11 +92,124 @@ class Cook:
         # model Score
         self.score(self.y_test, self.y_pred)
         
+    def mega_SGDClassifier(self):
+        
+        self.multilab = MultiLabelBinarizer()
+        self.model = SGDClassifier()
+        
+        #remove special ingredients
+        self.X = pd.Series(self.removing_special_ingredients(self.X))
+        
+        #remove adjectives, verbs, etc.
+        #self.X = self.pos_tag_ingredients(self.X)
+        
+        #train test split
+        self.train_test_split()
+
+        # preprocessing
+        self.preprocessing(self.X_train, self.X_test)
+
+        # model_fit
+        self.model_fit(self.X_train, self.y_train)
+
+        # model_predict
+        self.model_predict(self.X_test)
+        display(self.y_pred)
+
+        # model Score
+        self.score(self.y_test, self.y_pred)
+        
+    def mega_KNeighborsClassifier(self):
+        
+        self.multilab = MultiLabelBinarizer()
+        self.model = KNeighborsClassifier()
+        
+        #remove special ingredients
+        self.X = pd.Series(self.removing_special_ingredients(self.X))
+        
+        #remove adjectives, verbs, etc.
+        #self.X = self.pos_tag_ingredients(self.X)
+        
+        #train test split
+        self.train_test_split()
+
+        # preprocessing
+        self.preprocessing(self.X_train, self.X_test)
+
+        # model_fit
+        self.model_fit(self.X_train, self.y_train)
+
+        # model_predict
+        self.model_predict(self.X_test)
+        display(self.y_pred)
+
+        # model Score
+        self.score(self.y_test, self.y_pred)
+        
+    def mega_GradientBoostingClassifier(self):
+        
+        self.multilab = MultiLabelBinarizer()
+        self.model = GradientBoostingClassifier(n_estimators=10, learning_rate=1.0, max_depth=1, random_state=0)
+
+        #remove special ingredients
+        self.X = pd.Series(self.removing_special_ingredients(self.X))
+
+        #remove adjectives, verbs, etc.
+        #self.X = self.pos_tag_ingredients(self.X)
+
+        #train test split
+        self.train_test_split()
+
+        # preprocessing
+        self.preprocessing(self.X_train, self.X_test)
+
+        # model_fit
+        self.model_fit(self.X_train, self.y_train)
+
+        # model_predict
+        self.model_predict(self.X_test)
+        display(self.y_pred)
+
+        # model Score
+        self.score(self.y_test, self.y_pred)    
+        
+    
+    
+    def mega_LogisticRegression(self):
+
+        self.multilab = MultiLabelBinarizer()
+        self.model = LogisticRegression()
+
+        #remove special ingredients
+        self.X = pd.Series(self.removing_special_ingredients(self.X))
+
+        #remove adjectives, verbs, etc.
+        #self.X = self.pos_tag_ingredients(self.X)
+
+        #train test split
+        self.train_test_split()
+
+        # preprocessing
+        self.preprocessing(self.X_train, self.X_test)
+
+        # model_fit
+        self.model_fit(self.X_train, self.y_train)
+
+        # model_predict
+        self.model_predict(self.X_test)
+        display(self.y_pred)
+
+        # model Score
+        self.score(self.y_test, self.y_pred)    
+
+
     
     def stacking_training(self):
         
-        self.stack_model = StackingClassifier([('linearSVC', LinearSVC()),
-                                               ('randomForest', RandomForestClassifier())],
+        self.stack_model = StackingClassifier([('linearSVC', LinearSVC(C = 0.2, penalty = 'l2')),
+                                               ('SGDClassifier', SGDClassifier()),
+                                              #('LogisticRegression', LogisticRegression()),
+                                              ],
                                               
                                               final_estimator=LinearSVC())
 
