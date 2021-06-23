@@ -73,8 +73,8 @@ class Cook:
         #remove special ingredients
         self.X = pd.Series(self.removing_special_ingredients(self.X))
         
-        #remove adjectives, verbs, etc.
-        #self.X = self.pos_tag_ingredients(self.X)
+        #keep adjectives, verbs and nouns
+        self.X = self.pos_tag_ingredients(self.X)
         
         #train test split
         self.train_test_split()
@@ -203,10 +203,10 @@ class Cook:
         
     
     
-    def mega_LogisticRegression(self):
+    def mega_LogisticRegression(self,best_params=None):
 
         self.multilab = MultiLabelBinarizer()
-        self.model = LogisticRegression()
+        self.model = LogisticRegression(best_params)
 
         #remove special ingredients
         self.X = pd.Series(self.removing_special_ingredients(self.X))
@@ -267,7 +267,7 @@ class Cook:
         
     def randomize_training(self):
         
-        self.randomize_model = LinearSVC()
+        self.randomize_model = LogisticRegression()
 
         self.multilab = MultiLabelBinarizer()
                
@@ -275,7 +275,7 @@ class Cook:
         self.X = pd.Series(self.removing_special_ingredients(self.X))
         
         #remove adjectives, verbs, etc.
-        self.X = self.pos_tag_ingredients(self.X)
+        #self.X = self.pos_tag_ingredients(self.X)
         
         #train test split
         self.train_test_split()
@@ -284,13 +284,16 @@ class Cook:
         self.preprocessing(self.X_train, self.X_test)
 
         # model_fit
-        distributions = dict(C=uniform(loc=0, scale=4), penalty=['l2', 'l1'])
-        rscv = RandomizedSearchCV(self.randomize_model, distributions, random_state=0)
+        distributions = dict(C=np.arange(0.1,0.3,0.1), penalty=['l2', 'l1'], solver =['lbfgs', 'saga'])
+        rscv = RandomizedSearchCV(self.randomize_model, distributions, random_state=0,n_jobs=-1)
         random_search = rscv.fit(self.X_train,self.y_train)
 
         print(f"""
         Les meilleurs paramètres sont : {random_search.best_params_}
         """)
+        
+        self.best_params=random_search.best_params_
+        
         
         # model_predict
         self.y_pred = random_search.best_estimator_.predict(self.X_test)

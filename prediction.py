@@ -63,10 +63,10 @@ class Prediction:
         self.accuracy = accuracy_score(y_test, y_pred)
         print(self.accuracy)
 
-    def mega_process(self, x_test):
+    def mega_process(self, x_test, best_params=None):
         
         self.multilab = MultiLabelBinarizer()
-        self.model = LogisticRegression()
+        self.model = LogisticRegression(best_params)
         
         x_pred = pd.read_json(x_test)
         self.X_test = x_pred.ingredients
@@ -74,7 +74,7 @@ class Prediction:
         #remove special ingredients
         self.X = pd.Series(self.removing_special_ingredients(self.X))
         
-        #remove adjectives, verbs, etc.
+        #keep adjectives, verbs, etc.
         #self.X = self.pos_tag_ingredients(self.X)
 
         # preprocessing
