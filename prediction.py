@@ -9,7 +9,7 @@ class Prediction:
         self.X = self.df.ingredients
         self.y = self.df.cuisine
         
-        self.linear_params = "C = 0.22685190926977272, penalty = 'l2'"
+        
         
     def removing_special_ingredients(self, df):
         
@@ -63,10 +63,10 @@ class Prediction:
         self.accuracy = accuracy_score(y_test, y_pred)
         print(self.accuracy)
 
-    def mega_process(self, x_test, best_params=None):
+    def mega_process(self, x_test):
         
         self.multilab = MultiLabelBinarizer()
-        self.model = LogisticRegression(best_params)
+        self.model = SGDClassifier(penalty = 'l2', n_jobs = -1, alpha = 0.0001)
         
         x_pred = pd.read_json(x_test)
         self.X_test = x_pred.ingredients

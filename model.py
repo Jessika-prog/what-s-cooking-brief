@@ -9,7 +9,6 @@ class Cook:
         self.X = self.df.ingredients
         self.y = self.df.cuisine
         
-        self.linear_params = "C = 0.22685190926977272, penalty = 'l2'"
         
     def removing_special_ingredients(self, df):
         
@@ -118,7 +117,35 @@ class Cook:
 
         # model Score
         self.score(self.y_test, self.y_pred)
+    
+    def final_SGDClassifier(self):
         
+        self.multilab = MultiLabelBinarizer()
+        self.model = SGDClassifier(penalty = 'l2', n_jobs = -1, alpha = 0.0001)
+        
+        #remove special ingredients
+        self.X = pd.Series(self.removing_special_ingredients(self.X))
+        
+        #remove adjectives, verbs, etc.
+        #self.X = self.pos_tag_ingredients(self.X)
+        
+        #train test split
+        self.train_test_split()
+
+        # preprocessing
+        self.preprocessing(self.X_train, self.X_test)
+
+        # model_fit
+        self.model_fit(self.X_train, self.y_train)
+
+        # model_predict
+        self.model_predict(self.X_test)
+        display(self.y_pred)
+
+        # model Score
+        self.score(self.y_test, self.y_pred)
+        
+    
     def mega_KNeighborsClassifier(self):
         
         self.multilab = MultiLabelBinarizer()
@@ -203,11 +230,11 @@ class Cook:
         
     
     
-    def mega_LogisticRegression(self,best_params=None):
+    def mega_LogisticRegression(self, best_params = None):
 
         self.multilab = MultiLabelBinarizer()
-        self.model = LogisticRegression(best_params)
-
+        self.model = LogisticRegression() if (best_params == None) else LogisticRegression(best_params)
+ 
         #remove special ingredients
         self.X = pd.Series(self.removing_special_ingredients(self.X))
 
@@ -267,7 +294,7 @@ class Cook:
         
     def randomize_training(self):
         
-        self.randomize_model = LogisticRegression()
+        self.randomize_model = SGDClassifier()
 
         self.multilab = MultiLabelBinarizer()
                
@@ -284,8 +311,15 @@ class Cook:
         self.preprocessing(self.X_train, self.X_test)
 
         # model_fit
-        distributions = dict(C=np.arange(0.1,0.3,0.1), penalty=['l2', 'l1'], solver =['lbfgs', 'saga'])
-        rscv = RandomizedSearchCV(self.randomize_model, distributions, random_state=0,n_jobs=-1)
+         
+        
+        distributions = {'alpha': [1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3], # learning rate
+                'penalty': ['l2'],
+                'n_jobs': [-1]
+}
+
+        
+        rscv = RandomizedSearchCV(self.randomize_model, param_distributions = distributions, cv = 3, random_state=0)
         random_search = rscv.fit(self.X_train,self.y_train)
 
         print(f"""
