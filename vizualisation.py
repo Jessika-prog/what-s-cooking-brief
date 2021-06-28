@@ -3,16 +3,9 @@ from imports import *
 
 class Vizualisation:
     
-    #-------------------------------------------   
-    # init object 
-    # return object
     def __init__(self, df):
         self.df = pd.read_json(df)
-    
-    
-    #-------------------------------------------   
-    # execute basic operation for vizualize dataset 
-    # return DataFrame of observation
+        
     def df_info(self):
         
         len_df = len(self.df)
@@ -27,24 +20,19 @@ class Vizualisation:
         obs = pd.DataFrame({
             'type': list(self.df.dtypes),
             '% de valeurs nulles': round(self.df.isna().sum() / len_df * 100, 2)
-            #'Nbr L dupliquées' : (self.df.duplicated()).sum(),
-            #'Nbr V unique' : self.df.nunique()
+#           'Nbr L dupliquées' : (self.df.duplicated()).sum(),
+#           'Nbr V unique' : self.df.nunique()
         })
         
         return obs
 
-    #-------------------------------------------   
-    # evaluate kind of cooking on dataset
-    # return none
+
     def country_recipes(self):
 
         cuisine_imp=pd.DataFrame(self.df['cuisine'].value_counts())
         fig, ax = plt.subplots(figsize=(10,10))
         cuisine_imp.plot(y='cuisine', kind='bar', legend=False, title='Most represented countries',grid=True, ax=ax);
         
-    #-------------------------------------------   
-    # evaluate nb_ingredients by kind of cooking
-    # return none   
     def nb_ingredients_by_country(self):
         cuisines = self.df["cuisine"].unique()
 
@@ -60,10 +48,7 @@ class Vizualisation:
             fig, ax = plt.subplots(figsize=(14,4))
             pd.Series(all_cus[key]).value_counts().head(15).plot.bar(ax=ax, title=key)
             plt.show()
-    
-    #-------------------------------------------   
-    # evaluate nb_ingredients analyse by recipes
-    # return none   
+            
     def nb_ingredients_by_recipes(self):
         
         ingredients_number=[]
