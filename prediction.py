@@ -2,18 +2,15 @@ from imports import *
 
 class Prediction:
 
-   #-------------------------------------------   
-    # init object 
-    # return object
     def __init__(self, name):
 
-        self.df = pd.read_json(name)      
+        self.df = pd.read_json(name)
+        
         self.X = self.df.ingredients
         self.y = self.df.cuisine
         
-    #-------------------------------------------   
-    # remove special character from ingredients 
-    # return array
+        self.linear_params = "C = 0.22685190926977272, penalty = 'l2'"
+        
     def removing_special_ingredients(self, df):
         
         new_ingredient_list=[]
@@ -28,14 +25,12 @@ class Prediction:
             new_ingredient_list.append(new_recepe_ingredient_list)
         
         return new_ingredient_list
-    
-    #-------------------------------------------   
-    # just keep name, adverb and verb from ingredients 
-    # return pd.serie
+        
     def pos_tag_ingredients(self, serie):
         
         serie = serie.map(lambda x: ' '.join(x))
         
+     
         tagged_texts = pos_tag_sents(map(word_tokenize, serie))
         
         filtered_tags = []
@@ -46,62 +41,53 @@ class Prediction:
                 if j[-1].startswith(("N", "R", "V")):
                     filtered_tags[index].append(j[0])
         
-        return filtered_tags        
+        return filtered_tags
+ 
+    def train_test_split(self):
+            self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+                self.X, self.y, test_size=0.33, random_state=42)
    
-    #-------------------------------------------   
-    # execute preprocessing on X_train and X_test
-    # return none
     def preprocessing(self, X_train, X_test):
         self.X_train = pd.DataFrame(self.multilab.fit_transform(
             X_train), columns=self.multilab.classes_)
         self.X_test = pd.DataFrame(self.multilab.transform(
             X_test), columns=self.multilab.classes_)
-    
-    #-------------------------------------------   
-    # fit model with kind of model send
-    # return object fit model
-    def model_fit(self, X_train, y_train, model):
-        return model.fit(X_train, y_train)
-    
-    #-------------------------------------------   
-    # predict data with fit model
-    # return array of prediction
-    def model_predict(self, X_test, model_fit):
-        return model_fit.predict(X_test)
 
-    #-------------------------------------------   
-    # evaluate accuracy of model
-    # return accuracy number
+    def model_fit(self, X_train, y_train):
+        self.model_fit = self.model.fit(X_train, y_train)
+
+    def model_predict(self, X_test):
+        self.y_pred = self.model_fit.predict(X_test)
+
     def score(self, y_test, y_pred):
         self.accuracy = accuracy_score(y_test, y_pred)
-        return self.accuracy    
-    
-    #-------------------------------------------   
-    # Predict with on model and save submission on csv file
-    # return DataFrame of submission
-    def submission(self, x_test, model):
+        print(self.accuracy)
+
+    def mega_process(self, x_test, best_params=None):
         
         self.multilab = MultiLabelBinarizer()
+        self.model = LogisticRegression(best_params)
         
         x_pred = pd.read_json(x_test)
         self.X_test = x_pred.ingredients
-              
+        
         #remove special ingredients
         self.X = pd.Series(self.removing_special_ingredients(self.X))
         
-        #remove adjectives, verbs, etc.
+        #keep adjectives, verbs, etc.
         #self.X = self.pos_tag_ingredients(self.X)
-        
-         # preprocessing
+
+        # preprocessing
         self.preprocessing(self.X, self.X_test)
 
         # model_fit
-        model_fit = self.model_fit(self.X_train, self.y, model)
+        self.model_fit(self.X_train, self.y)
 
         # model_predict
-        y_pred = self.model_predict(self.X_test, model_fit)
-             
-        self.submission = pd.DataFrame({'id':x_pred['id'],'cuisine': y_pred})
+        self.model_predict(self.X_test)
+
+        
+        self.submission = pd.DataFrame({'id':x_pred['id'],'cuisine': self.y_pred})
         
         self.submission.to_csv('submission.csv', index=False)
         
